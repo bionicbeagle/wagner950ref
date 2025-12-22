@@ -573,6 +573,391 @@ sections.push({
   ]
 });
 
+// HTML Generation Function
+function createHTML(outputPath) {
+  const allSpecies = [...speciesData, ...engineeredMaterials.map(m => ({ ...m, isEngineered: true }))];
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wagner Orion 950 - Species Settings Reference</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #2E5C8A 0%, #1e3a5f 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header h2 {
+      font-size: 1.5em;
+      font-weight: 300;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .search-section {
+      padding: 30px 40px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .search-box {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 15px 50px 15px 20px;
+      font-size: 16px;
+      border: 2px solid #2E5C8A;
+      border-radius: 50px;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #2E5C8A;
+      font-size: 20px;
+    }
+
+    .info-section {
+      padding: 30px 40px;
+      background: #fff9e6;
+      border-left: 4px solid #ffc107;
+    }
+
+    .info-section h3 {
+      color: #2E5C8A;
+      margin-bottom: 15px;
+    }
+
+    .info-section ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-section li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .info-section li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #2E5C8A;
+      font-weight: bold;
+    }
+
+    .table-container {
+      padding: 40px;
+      max-height: 700px;
+      overflow-y: auto;
+    }
+
+    .stats {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1976d2;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      background: #2E5C8A;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 14px;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s;
+    }
+
+    tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    tbody tr:nth-child(even):hover {
+      background-color: #f0f0f0;
+    }
+
+    .setting-value {
+      font-weight: bold;
+      color: #2E5C8A;
+      font-size: 16px;
+    }
+
+    .engineered-badge {
+      display: inline-block;
+      background: #ff9800;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+      font-size: 18px;
+      display: none;
+    }
+
+    .no-results.show {
+      display: block;
+    }
+
+    .highlight {
+      background-color: #ffeb3b;
+      font-weight: bold;
+    }
+
+    .footer {
+      padding: 30px;
+      background: #2E5C8A;
+      color: white;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #ffeb3b;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.8em;
+      }
+
+      .table-container {
+        padding: 20px;
+      }
+
+      th, td {
+        padding: 10px 8px;
+        font-size: 12px;
+      }
+
+      .search-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Wagner Orion 950</h1>
+      <h2>Moisture Meter</h2>
+      <p>Species Settings Reference</p>
+    </div>
+
+    <div class="search-section">
+      <div class="search-box">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search by common name, scientific name, or setting value..."
+          autocomplete="off"
+        >
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>How to Use</h3>
+      <ul>
+        <li>Use the search box above to filter species by name or setting value</li>
+        <li>Locate your wood species in the table below</li>
+        <li>Note the specific gravity (SG) setting value</li>
+        <li>Enter this value into your Wagner 950 meter using the up/down arrows</li>
+      </ul>
+    </div>
+
+    <div class="table-container">
+      <div class="stats">
+        Showing <strong id="visibleCount">${allSpecies.length}</strong> of <strong>${allSpecies.length}</strong> species
+      </div>
+
+      <table id="speciesTable">
+        <thead>
+          <tr>
+            <th>Common Name</th>
+            <th>Scientific Name</th>
+            <th>Setting</th>
+          </tr>
+        </thead>
+        <tbody id="speciesTableBody">
+          ${allSpecies.map(species => `
+          <tr data-name="${species.name.toLowerCase()}" data-scientific="${species.scientific.toLowerCase()}" data-setting="${species.setting}">
+            <td>
+              ${species.name}${species.isEngineered ? '<span class="engineered-badge">ENGINEERED</span>' : ''}
+            </td>
+            <td>${species.scientific}</td>
+            <td class="setting-value">${species.setting}</td>
+          </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div class="no-results" id="noResults">
+        <p>No species found matching your search.</p>
+        <p style="font-size: 14px; margin-top: 10px; color: #999;">Try a different search term.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><strong>Important Notes:</strong></p>
+      <p style="margin: 10px 0;">Settings are based on specific gravity at 12% moisture content • Natural variation of ±10% is normal</p>
+      <p style="margin: 20px 0;">For more species, visit <a href="https://www.wagnermeters.com/specific-gravity" target="_blank">www.wagnermeters.com/specific-gravity</a></p>
+      <p>Wagner Meters • <a href="https://www.wagnermeters.com" target="_blank">www.wagnermeters.com</a> • (800) 634-9961</p>
+      <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">For technical support: support@wagnermeters.com</p>
+    </div>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('speciesTableBody');
+    const noResults = document.getElementById('noResults');
+    const visibleCount = document.getElementById('visibleCount');
+    const rows = tableBody.getElementsByTagName('tr');
+    const totalCount = ${allSpecies.length};
+
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      let visibleRows = 0;
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const name = row.getAttribute('data-name');
+        const scientific = row.getAttribute('data-scientific');
+        const setting = row.getAttribute('data-setting');
+
+        if (searchTerm === '' ||
+            name.includes(searchTerm) ||
+            scientific.includes(searchTerm) ||
+            setting.includes(searchTerm)) {
+          row.style.display = '';
+          visibleRows++;
+        } else {
+          row.style.display = 'none';
+        }
+      }
+
+      visibleCount.textContent = visibleRows;
+
+      if (visibleRows === 0) {
+        noResults.classList.add('show');
+        document.getElementById('speciesTable').style.display = 'none';
+      } else {
+        noResults.classList.remove('show');
+        document.getElementById('speciesTable').style.display = 'table';
+      }
+    });
+
+    // Focus search on page load
+    window.addEventListener('load', function() {
+      searchInput.focus();
+    });
+
+    // Clear search with Escape key
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        this.value = '';
+        this.dispatchEvent(new Event('input'));
+      }
+    });
+  </script>
+</body>
+</html>`;
+
+  fs.writeFileSync(outputPath, html, 'utf8');
+  return Promise.resolve();
+}
+
 // PDF Generation Functions
 function createPDF(outputPath) {
   const doc = new PDFDocument({
@@ -742,28 +1127,39 @@ const docxDoc = new Document({ sections });
 
 // Get command line arguments
 const args = process.argv.slice(2);
-const format = args[0] || 'both'; // 'docx', 'pdf', or 'both'
+const format = args[0] || 'all'; // 'docx', 'pdf', 'html', or 'all'
 
 // Save to file(s)
 async function generateDocuments() {
   try {
-    if (format === 'docx' || format === 'both') {
+    const validFormats = ['docx', 'pdf', 'html', 'all'];
+
+    if (!validFormats.includes(format)) {
+      console.log("Usage: node wagner_950_complete.js [docx|pdf|html|all]");
+      console.log("  docx - Generate only Word document");
+      console.log("  pdf  - Generate only PDF document");
+      console.log("  html - Generate only HTML page with search");
+      console.log("  all  - Generate all formats (default)");
+      return;
+    }
+
+    if (format === 'docx' || format === 'all') {
       const buffer = await Packer.toBuffer(docxDoc);
       fs.writeFileSync("Wagner_950_Reference_Sheets.docx", buffer);
       console.log("✓ DOCX file created: Wagner_950_Reference_Sheets.docx");
     }
 
-    if (format === 'pdf' || format === 'both') {
+    if (format === 'pdf' || format === 'all') {
       await createPDF("Wagner_950_Reference_Sheets.pdf");
       console.log("✓ PDF file created: Wagner_950_Reference_Sheets.pdf");
     }
 
-    if (format !== 'docx' && format !== 'pdf' && format !== 'both') {
-      console.log("Usage: node wagner_950_complete.js [docx|pdf|both]");
-      console.log("Default: both");
-    } else {
-      console.log("\nReference sheets created successfully with scientific names!");
+    if (format === 'html' || format === 'all') {
+      await createHTML("Wagner_950_Reference_Sheets.html");
+      console.log("✓ HTML file created: Wagner_950_Reference_Sheets.html");
     }
+
+    console.log("\nReference sheets created successfully with scientific names!");
   } catch (error) {
     console.error("Error generating documents:", error);
   }
