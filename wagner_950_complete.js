@@ -1,6 +1,7 @@
 const fs = require('fs');
-const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, 
+const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType,
         BorderStyle, WidthType, ShadingType, HeadingLevel, PageBreak, PageOrientation } = require('docx');
+const PDFDocument = require('pdfkit');
 
 // Species data organized alphabetically with their specific gravity settings and scientific names
 const speciesData = [
@@ -572,12 +573,200 @@ sections.push({
   ]
 });
 
-// Create document
-const doc = new Document({ sections });
+// PDF Generation Functions
+function createPDF(outputPath) {
+  const doc = new PDFDocument({
+    size: 'LETTER',
+    margins: { top: 50, bottom: 50, left: 50, right: 50 }
+  });
 
-// Save to file
-Packer.toBuffer(doc).then(buffer => {
-  fs.writeFileSync("Wagner_950_Reference_Sheets.docx", buffer);
-  console.log("Reference sheets created successfully with scientific names!");
-  console.log("Output file: Wagner_950_Reference_Sheets.docx");
-});
+  const stream = fs.createWriteStream(outputPath);
+  doc.pipe(stream);
+
+  // Title Page
+  doc.fontSize(28).fillColor('#000000').font('Helvetica-Bold')
+     .text('Wagner Orion 950', { align: 'center' })
+     .moveDown(0.5);
+
+  doc.fontSize(24).text('Moisture Meter', { align: 'center' })
+     .moveDown(0.5);
+
+  doc.fontSize(18).font('Helvetica')
+     .text('Species Settings Reference', { align: 'center' })
+     .moveDown(2);
+
+  // Quick Reference Guide section
+  doc.fontSize(14).fillColor('#2E5C8A').font('Helvetica-Bold')
+     .text('Quick Reference Guide', { align: 'center' })
+     .moveDown(1);
+
+  doc.fontSize(12).fillColor('#000000').font('Helvetica-Bold')
+     .text('How to Use:', { align: 'left' })
+     .moveDown(0.3);
+
+  doc.fontSize(10).font('Helvetica')
+     .text('1. Locate your wood species in the alphabetical tables')
+     .text('2. Note the specific gravity (SG) setting value')
+     .text('3. Enter this value into your Wagner 950 meter using the up/down arrows')
+     .moveDown(1);
+
+  doc.fontSize(12).font('Helvetica-Bold')
+     .text('Important Notes:')
+     .moveDown(0.3);
+
+  doc.fontSize(10).font('Helvetica')
+     .text('• Settings are based on specific gravity at 12% moisture content')
+     .text('• Values represent average density for each species')
+     .text('• Natural variation of ±10% is normal within species')
+     .text('• Scientific names help ensure precise wood identification')
+     .moveDown(2);
+
+  doc.fontSize(9).fillColor('#666666')
+     .text('Wagner Meters • www.wagnermeters.com • (800) 634-9961', { align: 'center' });
+
+  // Species Tables
+  const speciesChunks = chunkArray(speciesData, 30);
+
+  speciesChunks.forEach((chunk, index) => {
+    doc.addPage();
+
+    doc.fontSize(14).fillColor('#2E5C8A').font('Helvetica-Bold')
+       .text(`Wood Species Settings (Page ${index + 1} of ${speciesChunks.length})`, { align: 'center' })
+       .moveDown(0.5);
+
+    drawSpeciesTable(doc, chunk);
+  });
+
+  // Engineered Materials Page
+  doc.addPage();
+
+  doc.fontSize(14).fillColor('#2E5C8A').font('Helvetica-Bold')
+     .text('Engineered Wood Products', { align: 'center' })
+     .moveDown(0.5);
+
+  drawSpeciesTable(doc, engineeredMaterials);
+
+  doc.moveDown(2);
+
+  doc.fontSize(11).fillColor('#000000').font('Helvetica-Bold')
+     .text('Additional Information:')
+     .moveDown(0.3);
+
+  doc.fontSize(10).font('Helvetica')
+     .text('• For species not listed, visit Wagner\'s online database at:')
+     .moveDown(0.3);
+
+  doc.fontSize(10).fillColor('#2E5C8A').font('Helvetica-Bold')
+     .text('www.wagnermeters.com/specific-gravity', { align: 'center' })
+     .moveDown(0.5);
+
+  doc.fontSize(10).fillColor('#000000').font('Helvetica')
+     .text('• The online database contains over 7,500 wood species')
+     .moveDown(1);
+
+  doc.fontSize(11).font('Helvetica-Bold')
+     .text('Calibration:')
+     .moveDown(0.3);
+
+  doc.fontSize(10).font('Helvetica')
+     .text('• Use the included On-Demand Calibrator regularly to maintain accuracy')
+     .text('• Calibrate before important measurements or if meter has been dropped')
+     .moveDown(2);
+
+  doc.fontSize(9).fillColor('#666666')
+     .text('For technical support: support@wagnermeters.com', { align: 'center' });
+
+  doc.end();
+
+  return new Promise((resolve, reject) => {
+    stream.on('finish', resolve);
+    stream.on('error', reject);
+  });
+}
+
+function drawSpeciesTable(doc, speciesArray) {
+  const tableTop = doc.y;
+  const colWidths = [180, 270, 90]; // Common Name, Scientific Name, Setting
+  const rowHeight = 20;
+  const headerColor = '#2E5C8A';
+
+  // Draw header row
+  let y = tableTop;
+  const headers = ['Common Name', 'Scientific Name', 'Setting'];
+
+  // Header background
+  doc.rect(50, y, colWidths[0] + colWidths[1] + colWidths[2], rowHeight)
+     .fillAndStroke(headerColor, '#000000');
+
+  // Header text
+  doc.fillColor('#FFFFFF').font('Helvetica-Bold').fontSize(9);
+  doc.text(headers[0], 55, y + 6, { width: colWidths[0] - 10 });
+  doc.text(headers[1], 55 + colWidths[0], y + 6, { width: colWidths[1] - 10 });
+  doc.text(headers[2], 55 + colWidths[0] + colWidths[1], y + 6, { width: colWidths[2] - 10 });
+
+  y += rowHeight;
+
+  // Draw data rows
+  doc.fillColor('#000000').font('Helvetica').fontSize(8);
+
+  speciesArray.forEach((species, idx) => {
+    // Alternate row backgrounds for readability
+    if (idx % 2 === 0) {
+      doc.rect(50, y, colWidths[0] + colWidths[1] + colWidths[2], rowHeight)
+         .fillAndStroke('#F5F5F5', '#000000');
+    } else {
+      doc.rect(50, y, colWidths[0] + colWidths[1] + colWidths[2], rowHeight)
+         .stroke('#000000');
+    }
+
+    // Draw cell borders
+    doc.rect(50, y, colWidths[0], rowHeight).stroke('#000000');
+    doc.rect(50 + colWidths[0], y, colWidths[1], rowHeight).stroke('#000000');
+    doc.rect(50 + colWidths[0] + colWidths[1], y, colWidths[2], rowHeight).stroke('#000000');
+
+    // Draw text
+    doc.fillColor('#000000').font('Helvetica').fontSize(8);
+    doc.text(species.name, 55, y + 6, { width: colWidths[0] - 10, lineBreak: false });
+    doc.text(species.scientific, 55 + colWidths[0], y + 6, { width: colWidths[1] - 10, lineBreak: false });
+    doc.font('Helvetica-Bold');
+    doc.text(species.setting, 55 + colWidths[0] + colWidths[1], y + 6, { width: colWidths[2] - 10, lineBreak: false });
+
+    y += rowHeight;
+  });
+
+  doc.y = y + 10;
+}
+
+// Create DOCX document
+const docxDoc = new Document({ sections });
+
+// Get command line arguments
+const args = process.argv.slice(2);
+const format = args[0] || 'both'; // 'docx', 'pdf', or 'both'
+
+// Save to file(s)
+async function generateDocuments() {
+  try {
+    if (format === 'docx' || format === 'both') {
+      const buffer = await Packer.toBuffer(docxDoc);
+      fs.writeFileSync("Wagner_950_Reference_Sheets.docx", buffer);
+      console.log("✓ DOCX file created: Wagner_950_Reference_Sheets.docx");
+    }
+
+    if (format === 'pdf' || format === 'both') {
+      await createPDF("Wagner_950_Reference_Sheets.pdf");
+      console.log("✓ PDF file created: Wagner_950_Reference_Sheets.pdf");
+    }
+
+    if (format !== 'docx' && format !== 'pdf' && format !== 'both') {
+      console.log("Usage: node wagner_950_complete.js [docx|pdf|both]");
+      console.log("Default: both");
+    } else {
+      console.log("\nReference sheets created successfully with scientific names!");
+    }
+  } catch (error) {
+    console.error("Error generating documents:", error);
+  }
+}
+
+generateDocuments();
