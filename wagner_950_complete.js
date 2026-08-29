@@ -696,14 +696,14 @@ function createHTML(outputPath) {
     }
 
     .table-container {
-      padding: 40px;
+      padding: 0 40px 40px;
       max-height: 700px;
       overflow-y: auto;
     }
 
     .stats {
       text-align: center;
-      margin-bottom: 20px;
+      margin: 20px 0;
       padding: 15px;
       background: #e3f2fd;
       border-radius: 8px;
@@ -713,7 +713,8 @@ function createHTML(outputPath) {
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       background: white;
     }
 
@@ -893,8 +894,6 @@ function createHTML(outputPath) {
       <p><strong>Important Notes:</strong></p>
       <p style="margin: 10px 0;">Settings are based on specific gravity at 12% moisture content • Natural variation of ±10% is normal</p>
       <p style="margin: 20px 0;">For more species, visit <a href="https://www.wagnermeters.com/specific-gravity" target="_blank">www.wagnermeters.com/specific-gravity</a></p>
-      <p>Wagner Meters • <a href="https://www.wagnermeters.com" target="_blank">www.wagnermeters.com</a> • (800) 634-9961</p>
-      <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">For technical support: support@wagnermeters.com</p>
     </div>
   </div>
 
