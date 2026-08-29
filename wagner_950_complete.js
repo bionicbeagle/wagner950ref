@@ -583,141 +583,196 @@ function createHTML(outputPath) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wagner Orion 950 - Species Settings Reference</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+  <title>Wagner 950 Reference</title>
+  <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="82" font-size="82">🪵</text></svg>'>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --bg: #f2f2f6;
+      --panel: #ffffff;
+      --border: #e3e3e8;
+      --text: #1c1c1e;
+      --muted: #8e8e93;
+      --accent: #0a84ff;
+      --line-hover: rgba(0, 0, 0, 0.035);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+      --badge-bg: rgba(255, 159, 10, 0.15);
+      --badge-text: #b36200;
     }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --panel: #1c1c1e;
+        --border: #2c2c2e;
+        --text: #f2f2f7;
+        --muted: #98989e;
+        --line-hover: rgba(255, 255, 255, 0.05);
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --badge-bg: rgba(255, 159, 10, 0.18);
+        --badge-text: #ffb340;
+      }
+    }
+
+    * { box-sizing: border-box; }
 
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
+      margin: 0;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
+        Roboto, "Helvetica Neue", sans-serif;
     }
 
-    .container {
-      max-width: 1200px;
+    header {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 13px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header .tagline {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    header .home {
+      margin-left: auto;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+    }
+
+    header .home:hover { color: var(--text); }
+
+    main {
+      flex: 1;
+      width: min(880px, 100% - 48px);
       margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #2E5C8A 0%, #1e3a5f 100%);
-      color: white;
-      padding: 40px;
-      text-align: center;
-    }
-
-    .header h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-
-    .header h2 {
-      font-size: 1.5em;
-      font-weight: 300;
-      margin-bottom: 5px;
-    }
-
-    .header p {
-      font-size: 1.1em;
-      opacity: 0.9;
-    }
-
-    .search-section {
-      padding: 30px 40px;
-      background: #f8f9fa;
-      border-bottom: 2px solid #e0e0e0;
+      padding: 28px 0 48px;
     }
 
     .search-box {
       position: relative;
-      max-width: 600px;
-      margin: 0 auto;
+      margin-bottom: 20px;
     }
 
     .search-box input {
       width: 100%;
-      padding: 15px 50px 15px 20px;
+      padding: 12px 46px 12px 18px;
       font-size: 16px;
-      border: 2px solid #2E5C8A;
-      border-radius: 50px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
       outline: none;
-      transition: all 0.3s;
+      box-shadow: var(--shadow);
     }
 
+    .search-box input::placeholder { color: var(--muted); }
+
     .search-box input:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
     }
 
     .search-icon {
       position: absolute;
-      right: 20px;
+      right: 18px;
       top: 50%;
       transform: translateY(-50%);
-      color: #2E5C8A;
-      font-size: 20px;
+      font-size: 15px;
+      opacity: 0.5;
+      pointer-events: none;
     }
 
     .info-section {
-      padding: 30px 40px;
-      background: #fff9e6;
-      border-left: 4px solid #ffc107;
+      padding: 18px 22px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
     }
 
     .info-section h3 {
-      color: #2E5C8A;
-      margin-bottom: 15px;
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }
 
     .info-section ul {
       list-style: none;
-      padding-left: 0;
+      margin: 0;
+      padding: 0;
     }
 
     .info-section li {
-      padding: 8px 0;
-      padding-left: 25px;
+      padding: 4px 0 4px 24px;
       position: relative;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted);
     }
 
     .info-section li:before {
       content: "✓";
       position: absolute;
-      left: 0;
-      color: #2E5C8A;
-      font-weight: bold;
+      left: 2px;
+      color: var(--accent);
+      font-weight: 600;
     }
 
-    .table-container {
-      padding: 0 40px 40px;
-      max-height: 700px;
-      overflow-y: auto;
+    .table-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
     .stats {
-      text-align: center;
-      margin: 20px 0;
-      padding: 15px;
-      background: #e3f2fd;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #1976d2;
+      padding: 13px 22px;
+      font-size: 13px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .table-container {
+      max-height: 700px;
+      overflow-y: auto;
     }
 
     table {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      background: white;
     }
 
     thead {
@@ -727,61 +782,58 @@ function createHTML(outputPath) {
     }
 
     th {
-      background: #2E5C8A;
-      color: white;
-      padding: 15px;
+      background: var(--panel);
+      color: var(--muted);
+      padding: 10px 22px;
       text-align: left;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
     }
 
     td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #e0e0e0;
+      padding: 11px 22px;
+      border-bottom: 1px solid var(--border);
       font-size: 14px;
     }
 
-    tbody tr {
-      transition: background-color 0.2s;
+    tbody td:nth-child(2) {
+      color: var(--muted);
+      font-style: italic;
     }
+
+    tbody tr:last-child td { border-bottom: none; }
 
     tbody tr:hover {
-      background-color: #f5f5f5;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: #fafafa;
-    }
-
-    tbody tr:nth-child(even):hover {
-      background-color: #f0f0f0;
+      background-color: var(--line-hover);
     }
 
     .setting-value {
-      font-weight: bold;
-      color: #2E5C8A;
-      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
     }
 
     .engineered-badge {
       display: inline-block;
-      background: #ff9800;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 3px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 2px 9px;
+      border-radius: 999px;
       font-size: 11px;
-      font-weight: bold;
+      font-weight: 600;
+      letter-spacing: 0.02em;
       margin-left: 8px;
       vertical-align: middle;
     }
 
     .no-results {
       text-align: center;
-      padding: 60px 20px;
-      color: #666;
-      font-size: 18px;
+      padding: 48px 20px;
+      color: var(--muted);
+      font-size: 15px;
       display: none;
     }
 
@@ -789,69 +841,67 @@ function createHTML(outputPath) {
       display: block;
     }
 
-    .highlight {
-      background-color: #ffeb3b;
-      font-weight: bold;
+    footer {
+      width: min(880px, 100% - 48px);
+      margin: 0 auto;
+      padding: 18px 0 calc(18px + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      font-size: 13px;
+      color: var(--muted);
     }
 
-    .footer {
-      padding: 30px;
-      background: #2E5C8A;
-      color: white;
-      text-align: center;
-    }
-
-    .footer a {
-      color: #ffeb3b;
+    footer a {
+      color: var(--muted);
       text-decoration: none;
+      border-bottom: 1px dotted currentColor;
     }
 
-    .footer a:hover {
-      text-decoration: underline;
-    }
+    footer a:hover { color: var(--text); }
 
     @media (max-width: 768px) {
-      .header h1 {
-        font-size: 1.8em;
-      }
-
-      .table-container {
-        padding: 20px;
+      main, footer {
+        width: calc(100% - 32px);
       }
 
       th, td {
-        padding: 10px 8px;
-        font-size: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
       }
 
-      .search-section {
-        padding: 20px;
+      th { font-size: 11px; }
+
+      td { font-size: 13px; }
+
+      .stats {
+        padding: 12px 14px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Wagner Orion 950</h1>
-      <h2>Moisture Meter</h2>
-      <p>Species Settings Reference</p>
-    </div>
+  <header>
+    <h1>Wagner 950 Reference</h1>
+    <p class="tagline">species settings for the Orion 950 moisture meter</p>
+    <a class="home" href="/">More tools</a>
+  </header>
 
-    <div class="search-section">
-      <div class="search-box">
-        <input
-          type="text"
-          id="searchInput"
-          placeholder="Search by common name, scientific name, or setting value..."
-          autocomplete="off"
-        >
-        <span class="search-icon">🔍</span>
-      </div>
+  <main>
+    <div class="search-box">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by common name, scientific name, or setting value..."
+        autocomplete="off"
+      >
+      <span class="search-icon">🔍</span>
     </div>
 
     <div class="info-section">
-      <h3>How to Use</h3>
+      <h3>How to use</h3>
       <ul>
         <li>Use the search box above to filter species by name or setting value</li>
         <li>Locate your wood species in the table below</li>
@@ -860,11 +910,12 @@ function createHTML(outputPath) {
       </ul>
     </div>
 
-    <div class="table-container">
+    <div class="table-card">
       <div class="stats">
         Showing <strong id="visibleCount">${allSpecies.length}</strong> of <strong>${allSpecies.length}</strong> species
       </div>
 
+      <div class="table-container">
       <table id="speciesTable">
         <thead>
           <tr>
@@ -888,16 +939,16 @@ function createHTML(outputPath) {
 
       <div class="no-results" id="noResults">
         <p>No species found matching your search.</p>
-        <p style="font-size: 14px; margin-top: 10px; color: #999;">Try a different search term.</p>
+        <p>Try a different search term.</p>
+      </div>
       </div>
     </div>
+  </main>
 
-    <div class="footer">
-      <p><strong>Important Notes:</strong></p>
-      <p style="margin: 10px 0;">Settings are based on specific gravity at 12% moisture content • Natural variation of ±10% is normal</p>
-      <p style="margin: 20px 0;">For more species, visit <a href="https://www.wagnermeters.com/specific-gravity" target="_blank">www.wagnermeters.com/specific-gravity</a></p>
-    </div>
-  </div>
+  <footer>
+    <span>Settings are based on specific gravity at 12% moisture content · natural variation of ±10% is normal</span>
+    <a href="https://www.wagnermeters.com/specific-gravity" target="_blank">wagnermeters.com/specific-gravity</a>
+  </footer>
 
   <script>
     const searchInput = document.getElementById('searchInput');
